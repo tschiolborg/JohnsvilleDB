@@ -28,17 +28,17 @@ impl Table {
         let mut result: Vec<Row> = Vec::new();
         for row in self.rows.iter() {
             if condition(row) {
-                let mut row = row.clone();
-                if !keys.is_empty() {
-                    let mut fields = HashMap::new();
-                    for key in keys.iter() {
-                        if let Some(value) = row.fields.get(key) {
-                            fields.insert(key.clone(), value.clone());
-                        }
+                let mut new_row = Row::new();
+                if keys.is_empty() {
+                    for (key, value) in row.fields.iter() {
+                        new_row.add_field(key.to_string(), value.to_string());
                     }
-                    row.fields = fields;
+                } else {
+                    for key in keys.iter() {
+                        new_row.add_field(key.to_string(), row.fields[key].to_string());
+                    }
                 }
-                result.push(row);
+                result.push(new_row);
             }
         }
         result
