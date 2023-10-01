@@ -2,15 +2,15 @@ mod backend;
 mod parser;
 
 use rand::Rng;
+use std::io::{self, Write};
 
-use backend::Row;
-use backend::Table;
+use backend::{Row, Table, TABLE_NAME};
 use parser::read_query;
 
 fn main() {
     let mut rnd = rand::thread_rng();
 
-    let mut table = Table::new(String::from("users"));
+    let mut table = Table::new(String::from(TABLE_NAME));
 
     for i in 1..=3 {
         let mut row = Row::new();
@@ -21,9 +21,15 @@ fn main() {
     }
 
     loop {
-        println!("\nMake query on table '{}'", table.name());
+        print!("> ");
+        let _ = io::stdout().flush();
 
-        let (keys, condition) = match read_query(&table.name()) {
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
+
+        let (keys, condition) = match read_query(&input) {
             Some((keys, condition)) => (keys, condition),
             None => continue,
         };

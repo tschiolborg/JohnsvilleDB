@@ -1,16 +1,10 @@
-use crate::backend::Row;
-use std::io;
+use crate::backend::{Row, TABLE_NAME};
 
-pub fn read_query(table_name: &str) -> Option<(Vec<String>, fn(&Row) -> bool)> {
-    let mut input = String::new();
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Failed to read line");
-
+pub fn read_query(query: &str) -> Option<(Vec<String>, fn(&Row) -> bool)> {
     let mut keys: Vec<String> = Vec::new();
     let condition: fn(&Row) -> bool = |_| true;
 
-    let input = input.trim().to_lowercase().replace(",", "");
+    let input = query.trim().to_lowercase().replace(",", "");
 
     let mut tokens = input.split_whitespace();
 
@@ -58,9 +52,9 @@ pub fn read_query(table_name: &str) -> Option<(Vec<String>, fn(&Row) -> bool)> {
     }
 
     match tokens.next() {
-        Some(name) if name == table_name => (),
+        Some(name) if name == TABLE_NAME => (),
         _ => {
-            println!("Invalid query: Only table '{table_name}' is supported");
+            println!("Invalid query: Only table '{TABLE_NAME}' is supported");
             return None;
         }
     }

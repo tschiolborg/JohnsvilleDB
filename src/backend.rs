@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
+pub const TABLE_NAME: &str = "users";
+
 pub struct Table {
+    #[allow(dead_code)]
     name: String,
     rows: Vec<Row>,
 }
@@ -16,10 +19,6 @@ impl Table {
             name,
             rows: Vec::new(),
         }
-    }
-
-    pub fn name(&self) -> &str {
-        &self.name
     }
 
     pub fn add_row(&mut self, row: Row) {
