@@ -1,45 +1,35 @@
-use std::collections::HashMap;
+use core::fmt;
 
-pub const TABLE_NAME: &str = "users";
+pub enum Statement {
+    Insert(Row),
+    Select,
+}
 
 pub struct Table {
-    #[allow(dead_code)]
-    name: String,
     rows: Vec<Row>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Row {
-    fields: HashMap<String, String>,
+    id: u32,
+    name: String,
+    age: u32,
 }
 
 impl Table {
-    pub fn new(name: String) -> Table {
-        Table {
-            name,
-            rows: Vec::new(),
-        }
+    pub fn new() -> Table {
+        Table { rows: Vec::new() }
     }
 
     pub fn add_row(&mut self, row: Row) {
         self.rows.push(row);
     }
 
-    pub fn filter(&self, keys: Vec<String>, condition: fn(&Row) -> bool) -> Vec<Row> {
+    pub fn filter(&self, condition: fn(&Row) -> bool) -> Vec<Row> {
         let mut result: Vec<Row> = Vec::new();
         for row in self.rows.iter() {
             if condition(row) {
-                let mut new_row = Row::new();
-                if keys.is_empty() {
-                    for (key, value) in row.fields.iter() {
-                        new_row.add_field(key.to_string(), value.to_string());
-                    }
-                } else {
-                    for key in keys.iter() {
-                        new_row.add_field(key.to_string(), row.fields[key].to_string());
-                    }
-                }
-                result.push(new_row);
+                result.push(row.clone());
             }
         }
         result
@@ -47,13 +37,28 @@ impl Table {
 }
 
 impl Row {
-    pub fn new() -> Row {
-        Row {
-            fields: HashMap::new(),
-        }
+    pub fn from(id: u32, name: String, age: u32) -> Row {
+        Row { id, name, age }
     }
+}
 
-    pub fn add_field(&mut self, key: String, value: String) {
-        self.fields.insert(key, value);
+impl fmt::Display for Row {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:>3}, {:>4}, {:>3}", self.id, self.name, self.age)
+    }
+}
+
+pub fn execute_statement(statement: Statement, table: &mut Table) {
+    match statement {
+        Statement::Insert(insert_row) => {
+            table.add_row(insert_row);
+        }
+        Statement::Select => {
+            let result = table.filter(|_| true);
+            println!(" id, name, age");
+            for row in result.iter() {
+                println!("{}", row);
+            }
+        }
     }
 }
