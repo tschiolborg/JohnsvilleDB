@@ -1,8 +1,13 @@
 use core::fmt;
 
+pub enum Meta {
+    Exit,
+}
+
 pub enum Statement {
     Insert(Row),
     Select,
+    Meta(Meta),
 }
 
 pub struct Table {
@@ -50,6 +55,7 @@ impl fmt::Display for Row {
 
 pub fn execute_statement(statement: Statement, table: &mut Table) {
     match statement {
+        Statement::Meta(meta) => execute_meta(meta),
         Statement::Insert(insert_row) => {
             table.add_row(insert_row);
         }
@@ -60,5 +66,11 @@ pub fn execute_statement(statement: Statement, table: &mut Table) {
                 println!("{}", row);
             }
         }
+    }
+}
+
+pub fn execute_meta(meta: Meta) {
+    match meta {
+        Meta::Exit => std::process::exit(0),
     }
 }

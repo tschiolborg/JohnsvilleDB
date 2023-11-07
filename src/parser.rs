@@ -1,13 +1,7 @@
-use crate::backend::{Row, Statement};
+use crate::backend::{Meta, Row, Statement};
 
 pub fn read_input(query: &str) -> Result<Statement, &str> {
     let query = query.trim();
-
-    match query.split_whitespace().next() {
-        Some("exit") => std::process::exit(0),
-        Some(_) => (),
-        None => return Err("Invalid query: Missing tokens"),
-    }
 
     return prepare_statement(&query);
 }
@@ -18,6 +12,7 @@ fn prepare_statement(query: &str) -> Result<Statement, &str> {
     let mut tokens = query.split_whitespace();
 
     match tokens.next() {
+        Some("exit") => statement = Statement::Meta(Meta::Exit),
         Some("insert") => {
             let args = tokens.collect::<Vec<&str>>();
             if args.len() != 3 {
@@ -32,9 +27,10 @@ fn prepare_statement(query: &str) -> Result<Statement, &str> {
         Some("select") => {
             statement = Statement::Select;
         }
-        _ => {
+        Some(_) => {
             return Err("Unrecognized keyword at start of query");
         }
+        None => return Err("Invalid query: Missing tokens"),
     }
 
     return Ok(statement);
